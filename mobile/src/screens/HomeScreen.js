@@ -1,42 +1,34 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, ScrollView, StyleSheet } from 'react-native';
+import { useSelector, useDispatch } from 'react-redux';
+import TripCard from '../components/TripCard';
+import { fetchTrips } from '../store/slices/tripSlice';
 
-export default function HomeScreen({ navigation }) {
+export default function HomeScreen() {
+  const dispatch = useDispatch();
+  const trips = useSelector(state => state.trips.items);
+
+  React.useEffect(() => {
+    dispatch(fetchTrips());
+  }, [dispatch]);
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>TravelMate</Text>
-      <TouchableOpacity 
-        style={styles.button}
-        onPress={() => navigation.navigate('Planner')}
-      >
-        <Text style={styles.buttonText}>Planifier un voyage</Text>
-      </TouchableOpacity>
-    </View>
+    <ScrollView style={styles.container}>
+      <View style={styles.tripsContainer}>
+        {trips.map(trip => (
+          <TripCard key={trip.id} trip={trip} />
+        ))}
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
+    backgroundColor: '#F8F9FA'
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  button: {
-    backgroundColor: '#007AFF',
-    padding: 15,
-    borderRadius: 10,
-    width: '100%',
-  },
-  buttonText: {
-    color: '#FFF',
-    textAlign: 'center',
-    fontSize: 16,
-    fontWeight: '600',
-  },
+  tripsContainer: {
+    padding: 15
+  }
 });
