@@ -1,21 +1,14 @@
 # Dependencies
 node_modules/
-.yarn/
-yarn.lock
-package-lock.json
 
 # Environment
 .env
 .env.local
-.env.development
-.env.test
-.env.production
+.env.*.local
 
 # Build
 /build
 /dist
-/.next
-/out
 
 # Mobile
 ## iOS
@@ -44,13 +37,12 @@ project.xcworkspace
 /android/local.properties
 *.iml
 .gradle/
-/captures/
-.externalNativeBuild/
 
-# IDEs
-.idea/
-.vscode/
-*.swp
-*.swo
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# System Files
 .DS_Store
 Thumbs.db
