@@ -1,18 +1,20 @@
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
 # Dependencies
 node_modules/
 
-# Environment
-.env
-.env.local
-.env.*.local
+# Build outputs
+build/
+dist/
 
-# Build
-/build
-/dist
-
-# Mobile
+# Mobile specific
 ## iOS
-/ios/Pods/
+ios/Pods/
 *.pbxuser
 !default.pbxuser
 *.mode1v3
@@ -31,18 +33,30 @@ DerivedData
 project.xcworkspace
 
 ## Android
-/android/app/build/
-/android/build/
-/android/gradle/
-/android/local.properties
-*.iml
+android/app/build/
+android/build/
+android/local.properties
 .gradle/
+*.iml
 
 # Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 logs
 *.log
-npm-debug.log*
 
-# System Files
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
