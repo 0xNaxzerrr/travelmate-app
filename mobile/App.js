@@ -1,20 +1,21 @@
-import 'react-native-gesture-handler';
 import React from 'react';
-import { LogBox } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
 import store from './src/store';
 import AppNavigator from './src/navigation/AppNavigator';
+import { enableScreens } from 'react-native-screens';
 
-// Ignorer l'avertissement topInsetsChange
-LogBox.ignoreLogs(['Unsupported top level event type "topInsetsChange" dispatched']);
+// Explicitly enable native screens with configuration
+enableScreens({
+  skipRequestAnimationFrame: true
+});
 
 export default function App() {
   return (
-    <Provider store={store}>
-      <SafeAreaProvider>
+    <SafeAreaProvider>
+      <Provider store={store}>
         <AppNavigator />
-      </SafeAreaProvider>
-    </Provider>
+      </Provider>
+    </SafeAreaProvider>
   );
 }
