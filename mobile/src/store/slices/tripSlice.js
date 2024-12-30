@@ -1,36 +1,34 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import * as api from '../../utils/api';
+import { createSlice } from '@reduxjs/toolkit';
 
-export const fetchTrips = createAsyncThunk(
-  'trips/fetchTrips',
-  async () => {
-    const response = await api.getTrips();
-    return response.data;
-  }
-);
+const initialState = {
+  trips: [],
+  currentTrip: null,
+  isLoading: false,
+  error: null
+};
 
-const tripSlice = createSlice({
+export const tripSlice = createSlice({
   name: 'trips',
-  initialState: {
-    items: [],
-    loading: false,
-    error: null
-  },
-  reducers: {},
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchTrips.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(fetchTrips.fulfilled, (state, action) => {
-        state.items = action.payload;
-        state.loading = false;
-      })
-      .addCase(fetchTrips.rejected, (state, action) => {
-        state.error = action.error.message;
-        state.loading = false;
-      });
+  initialState,
+  reducers: {
+    setTrips: (state, action) => {
+      state.trips = action.payload;
+    },
+    addTrip: (state, action) => {
+      state.trips.push(action.payload);
+    },
+    setCurrentTrip: (state, action) => {
+      state.currentTrip = action.payload;
+    },
+    setLoading: (state, action) => {
+      state.isLoading = action.payload;
+    },
+    setError: (state, action) => {
+      state.error = action.payload;
+    }
   }
 });
+
+export const { setTrips, addTrip, setCurrentTrip, setLoading, setError } = tripSlice.actions;
 
 export default tripSlice.reducer;
