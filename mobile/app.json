@@ -8,21 +8,26 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.travelmate.app"
+      "bundleIdentifier": "com.travelmate.app",
+      "newArchEnabled": true
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
       },
-      "package": "com.travelmate.app"
+      "package": "com.travelmate.app",
+      "newArchEnabled": true
     },
     "plugins": [
       "expo-camera",
       "expo-location",
-      "expo-image-picker"
-    ],
-    "newArchEnabled": true
+      "expo-image-picker",
+      "react-native-safe-area-context",
+      "react-native-screens",
+      "react-native-reanimated/plugin"
+    ]
   }
 }
