@@ -5,9 +5,6 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "splash": {
-      "backgroundColor": "#ffffff"
-    },
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -16,13 +13,16 @@
       "bundleIdentifier": "com.travelmate.app"
     },
     "android": {
-      "backgroundColor": "#ffffff",
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      },
       "package": "com.travelmate.app"
     },
     "plugins": [
       "expo-camera",
       "expo-location",
       "expo-image-picker"
-    ]
+    ],
+    "newArchEnabled": true
   }
 }
