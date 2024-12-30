@@ -6,13 +6,13 @@ export const registerUser = createAsyncThunk(
   'auth/registerUser',
   async (userData, { rejectWithValue }) => {
     try {
-      console.log('Tentative d'inscription :', userData);
+      console.log('Tentative d\'inscription :', userData);
       const response = await axios.post('/auth/register', userData);
       console.log('Réponse inscription :', response.data);
       return response.data;
     } catch (error) {
       console.error('Erreur inscription :', error.response?.data || error.message);
-      return rejectWithValue(error.response?.data || { message: 'Erreur d'inscription' });
+      return rejectWithValue(error.response?.data || { message: 'Erreur d\'inscription' });
     }
   }
 );
