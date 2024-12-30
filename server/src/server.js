@@ -1,37 +1,38 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const swaggerUi = require('swagger-ui-express');
-const swaggerSpec = require('./config/swagger');
-
-dotenv.config();
+const compression = require('compression');
+const { helmet, limiter } = require('./middleware/security');
+const errorHandler = require('./middleware/errorHandler');
+const { initRedis } = require('./config/redis');
+const logger = require('./config/logger');
 
 const app = express();
 
-// Middlewares
-app.use(cors());
+// Middleware
+app.use(helmet());
+app.use('/api', limiter);
+app.use(compression());
 app.use(express.json());
 
-// Documentation Swagger
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => logger.info('Connected to MongoDB'))
+  .catch(err => logger.error('MongoDB connection error:', err));
+
+// Initialize Redis
+initRedis().catch(err => logger.error('Redis connection error:', err));
 
 // Routes
-const authRoutes = require('./routes/authRoutes');
-const tripRoutes = require('./routes/tripRoutes');
-const suggestionRoutes = require('./routes/suggestionRoutes');
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/trips', require('./routes/trips'));
 
-app.use('/api/auth', authRoutes);
-app.use('/api/trips', tripRoutes);
-app.use('/api/suggestions', suggestionRoutes);
-
-// Database Connection
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('Connected to MongoDB'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+// Error handling
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Swagger docs available at http://localhost:${PORT}/api-docs`);
+  logger.info(`Server running on port ${PORT}`);
 });
+
+module.exports = app;
