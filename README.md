@@ -1,68 +1,54 @@
-# TravelMate
+# TravelMate 🌍✈️
 
-Application mobile interactive pour planifier et partager vos voyages.
+## Description
+TravelMate est une application mobile innovante qui simplifie la planification de voyages en utilisant l'IA pour générer des suggestions personnalisées.
 
-## 🌟 Fonctionnalités
+## Fonctionnalités
+- Authentification utilisateur
+- Génération de suggestions de voyage par IA
+- Planification détaillée d'itinéraires
+- Suivi de voyage avec géolocalisation des photos
+- Partage de voyage
 
-- Planification de voyage intuitive
-- Itinéraires touristiques optimisés
-- Tracking des souvenirs avec géolocalisation
-- Journal de bord collaboratif
-- Partage social
-- Mode hors ligne
-- Sécurité et assistance
+## Technologies
+- Backend: Node.js, Express.js, MongoDB
+- Frontend: React Native, Redux
+- IA: OpenAI GPT
 
-## 🛠 Technologies
-
-- **Frontend:** React Native
-- **Backend:** Node.js, Express.js
-- **Base de données:** MongoDB
-- **APIs:** Google Maps
-- **Déploiement:** Docker
-
-## 🚀 Installation
+## Installation
 
 ### Prérequis
+- Node.js
+- MongoDB
+- Expo CLI
 
-- Node.js >= 14.0.0
-- MongoDB >= 4.4
-- React Native CLI
-- Docker
-
-### Installation du Frontend (React Native)
-
-```bash
-cd mobile
-npm install
-# Pour iOS
-cd ios && pod install && cd ..
-npx react-native run-ios
-# Pour Android
-npx react-native run-android
-```
-
-### Installation du Backend
-
+### Backend
 ```bash
 cd server
 npm install
-npm run dev
+npm start
 ```
 
-### Démarrage avec Docker
-
+### Mobile
 ```bash
-docker-compose up -d
+cd mobile
+npm install
+npx expo start
 ```
 
-## 📱 Structure du Projet
+## Configuration
+Créez un fichier `.env` dans les dossiers `server` et `mobile` avec :
 
+### Backend `.env`
 ```
-├── mobile/           # Application React Native
-├── server/           # Backend Node.js
-└── docker/           # Configuration Docker
+PORT=3000
+MONGO_URI=mongodb://localhost:27017/travelmate
+JWT_SECRET=votre_secret
+OPENAI_API_KEY=votre_clé_openai
 ```
 
-## 📝 License
+## Documentation API
+Accédez à la documentation Swagger : `http://localhost:3000/api-docs`
 
-MIT
+## Contributions
+Les contributions sont les bienvenues ! 🚀
