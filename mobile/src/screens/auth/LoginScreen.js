@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useDispatch } from 'react-redux';
-import { Ionicons } from '@expo/vector-icons';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -9,13 +8,20 @@ export default function LoginScreen({ navigation }) {
   const dispatch = useDispatch();
 
   const handleLogin = async () => {
-    // TODO: Implémenter la logique de connexion
-    console.log('Login:', { email, password });
-  };
+    if (!email || !password) {
+      Alert.alert('Erreur', 'Veuillez remplir tous les champs');
+      return;
+    }
 
-  const handleGoogleLogin = async () => {
-    // TODO: Implémenter la connexion Google
-    console.log('Google login');
+    try {
+      // TODO: Intégrer avec le backend
+      console.log('Tentative de connexion:', { email, password });
+      
+      // Simulation de connexion réussie
+      Alert.alert('Succès', 'Connexion réussie!');
+    } catch (error) {
+      Alert.alert('Erreur', error.message || 'Erreur de connexion');
+    }
   };
 
   return (
@@ -26,7 +32,7 @@ export default function LoginScreen({ navigation }) {
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
-          placeholder="Email ou téléphone"
+          placeholder="Email"
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
@@ -45,22 +51,19 @@ export default function LoginScreen({ navigation }) {
         <Text style={styles.loginButtonText}>Se connecter</Text>
       </TouchableOpacity>
 
-      <Text style={styles.orText}>ou</Text>
-
-      <TouchableOpacity 
-        style={[styles.socialButton, styles.googleButton]}
-        onPress={handleGoogleLogin}
-      >
-        <Ionicons name="logo-google" size={24} color="#DB4437" />
-        <Text style={styles.socialButtonText}>Continuer avec Google</Text>
-      </TouchableOpacity>
-
       <View style={styles.footer}>
         <Text style={styles.footerText}>Pas encore de compte ?</Text>
         <TouchableOpacity onPress={() => navigation.navigate('Register')}>
           <Text style={styles.registerLink}>S'inscrire</Text>
         </TouchableOpacity>
       </View>
+
+      <TouchableOpacity 
+        style={styles.forgotPassword}
+        onPress={() => Alert.alert('Info', 'Fonctionnalité à venir')}
+      >
+        <Text style={styles.forgotPasswordText}>Mot de passe oublié ?</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -106,27 +109,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  orText: {
-    color: '#666',
-    marginVertical: 20,
-  },
-  socialButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 15,
-    borderRadius: 10,
-    width: '100%',
-    borderWidth: 1,
-    borderColor: '#ddd',
-  },
-  googleButton: {
-    backgroundColor: '#fff',
-  },
-  socialButtonText: {
-    marginLeft: 10,
-    fontSize: 16,
-  },
   footer: {
     flexDirection: 'row',
     marginTop: 30,
@@ -138,5 +120,11 @@ const styles = StyleSheet.create({
     color: '#007AFF',
     marginLeft: 5,
     fontWeight: 'bold',
+  },
+  forgotPassword: {
+    marginTop: 20,
+  },
+  forgotPasswordText: {
+    color: '#007AFF',
   },
 });
