@@ -20,54 +20,83 @@ const Tab = createBottomTabNavigator();
 
 const TabNavigator = () => (
   <Tab.Navigator
-    screenOptions={({ route }) => ({
-      tabBarIcon: ({ focused, color, size }) => {
-        let iconName;
-
-        switch (route.name) {
-          case 'Accueil':
-            iconName = focused ? 'home' : 'home-outline';
-            break;
-          case 'Carte':
-            iconName = focused ? 'map' : 'map-outline';
-            break;
-          case 'Planifier':
-            iconName = focused ? 'calendar' : 'calendar-outline';
-            break;
-          case 'Profil':
-            iconName = focused ? 'person' : 'person-outline';
-            break;
-          default:
-            iconName = 'ellipsis-horizontal';
-        }
-
-        return <Ionicons name={iconName} size={24} color={color} />;
-      },
-      tabBarActiveTintColor: '#007AFF',
-      tabBarInactiveTintColor: 'gray',
-    })}
+    screenOptions={{
+      headerShown: false,
+      tabBarStyle: { height: 60 },
+      tabBarIconStyle: { marginTop: 5 },
+      tabBarLabelStyle: { marginBottom: 5 }
+    }}
   >
-    <Tab.Screen name="Accueil" component={HomeScreen} />
-    <Tab.Screen name="Carte" component={MapScreen} />
-    <Tab.Screen name="Planifier" component={PlannerScreen} />
-    <Tab.Screen name="Profil" component={ProfileScreen} />
+    <Tab.Screen 
+      name="Accueil" 
+      component={HomeScreen} 
+      options={({ route }) => ({
+        tabBarIcon: ({ focused, color }) => (
+          <Ionicons 
+            name={focused ? 'home' : 'home-outline'} 
+            size={24} 
+            color={color} 
+          />
+        ),
+        tabBarActiveTintColor: '#007AFF',
+        tabBarInactiveTintColor: 'gray',
+      })}
+    />
+    <Tab.Screen 
+      name="Carte" 
+      component={MapScreen} 
+      options={({ route }) => ({
+        tabBarIcon: ({ focused, color }) => (
+          <Ionicons 
+            name={focused ? 'map' : 'map-outline'} 
+            size={24} 
+            color={color} 
+          />
+        ),
+        tabBarActiveTintColor: '#007AFF',
+        tabBarInactiveTintColor: 'gray',
+      })}
+    />
+    <Tab.Screen 
+      name="Planifier" 
+      component={PlannerScreen} 
+      options={({ route }) => ({
+        tabBarIcon: ({ focused, color }) => (
+          <Ionicons 
+            name={focused ? 'calendar' : 'calendar-outline'} 
+            size={24} 
+            color={color} 
+          />
+        ),
+        tabBarActiveTintColor: '#007AFF',
+        tabBarInactiveTintColor: 'gray',
+      })}
+    />
+    <Tab.Screen 
+      name="Profil" 
+      component={ProfileScreen} 
+      options={({ route }) => ({
+        tabBarIcon: ({ focused, color }) => (
+          <Ionicons 
+            name={focused ? 'person' : 'person-outline'} 
+            size={24} 
+            color={color} 
+          />
+        ),
+        tabBarActiveTintColor: '#007AFF',
+        tabBarInactiveTintColor: 'gray',
+      })}
+    />
   </Tab.Navigator>
 );
 
 export default function AppNavigator() {
-  // Vérifier si l'utilisateur est connecté
   const isAuthenticated = useSelector(state => state.auth.token !== null);
 
   return (
     <NavigationContainer>
-      <Stack.Navigator 
-        screenOptions={{ 
-          headerShown: false,
-          animation: 'default'
-        }}
-      >
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!isAuthenticated ? (
-          // Routes d'authentification
           <>
             <Stack.Screen 
               name="Login" 
@@ -87,7 +116,6 @@ export default function AppNavigator() {
             />
           </>
         ) : (
-          // Routes principales de l'application
           <Stack.Screen name="MainApp" component={TabNavigator} />
         )}
       </Stack.Navigator>
