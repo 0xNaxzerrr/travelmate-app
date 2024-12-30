@@ -60,7 +60,12 @@ export default function AppNavigator() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Navigator 
+        screenOptions={{ 
+          headerShown: false,
+          animation: 'default'
+        }}
+      >
         {!isAuthenticated ? (
           // Routes d'authentification
           <>
