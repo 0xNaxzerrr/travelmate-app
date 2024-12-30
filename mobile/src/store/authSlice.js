@@ -4,15 +4,26 @@ import axios from 'axios';
 // URL de base de votre API
 const BASE_URL = 'http://localhost:3000/api/auth';
 
+// Configuration d'Axios
+const api = axios.create({
+  baseURL: BASE_URL,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
 // Thunk pour la connexion
 export const loginUser = createAsyncThunk(
   'auth/loginUser',
   async ({ email, password }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${BASE_URL}/login`, { email, password });
+      console.log('Login attempt:', { email, password });
+      const response = await api.post('/login', { email, password });
+      console.log('Login response:', response.data);
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      console.error('Login error:', error.response?.data || error.message);
+      return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
@@ -22,10 +33,13 @@ export const registerUser = createAsyncThunk(
   'auth/registerUser',
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${BASE_URL}/register`, userData);
+      console.log('Register attempt:', userData);
+      const response = await api.post('/register', userData);
+      console.log('Register response:', response.data);
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      console.error('Register error:', error.response?.data || error.message);
+      return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
