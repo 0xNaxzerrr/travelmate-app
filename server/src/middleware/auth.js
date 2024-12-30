@@ -1,29 +1,32 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-module.exports = async (req, res, next) => {
+exports.verifyToken = async (req, res, next) => {
   try {
-    // Get token from header
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-
+    const token = req.headers.authorization?.split(' ')[1];
+    
     if (!token) {
-      return res.status(401).json({ message: 'No auth token found' });
+      return res.status(401).json({ message: 'Token manquant' });
     }
 
-    // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // Find user
-    const user = await User.findOne({ _id: decoded.userId });
+    const user = await User.findById(decoded.userId);
 
     if (!user) {
-      throw new Error();
+      return res.status(401).json({ message: 'Utilisateur non trouvé' });
     }
 
-    req.token = token;
     req.user = user;
     next();
   } catch (error) {
-    res.status(401).json({ message: 'Please authenticate' });
+    return res.status(401).json({ message: 'Token invalide' });
+  }
+};
+
+exports.isAuthenticated = (req, res, next) => {
+  if (req.user) {
+    next();
+  } else {
+    res.status(401).json({ message: 'Non autorisé' });
   }
 };
