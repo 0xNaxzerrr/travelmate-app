@@ -21,8 +21,8 @@
     "plugins": [
       "expo-camera",
       "expo-location",
-      "expo-image-picker"
-    ],
-    "newArchEnabled": true
+      "expo-image-picker",
+      "@react-native-google-signin/google-signin"
+    ]
   }
 }

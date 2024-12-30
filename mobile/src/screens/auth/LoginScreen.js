@@ -18,11 +18,6 @@ export default function LoginScreen({ navigation }) {
     console.log('Google login');
   };
 
-  const handleFacebookLogin = async () => {
-    // TODO: Implémenter la connexion Facebook
-    console.log('Facebook login');
-  };
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>TravelMate</Text>
@@ -52,23 +47,13 @@ export default function LoginScreen({ navigation }) {
 
       <Text style={styles.orText}>ou</Text>
 
-      <View style={styles.socialButtons}>
-        <TouchableOpacity 
-          style={[styles.socialButton, styles.googleButton]}
-          onPress={handleGoogleLogin}
-        >
-          <Ionicons name="logo-google" size={24} color="#DB4437" />
-          <Text style={styles.socialButtonText}>Google</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={[styles.socialButton, styles.facebookButton]}
-          onPress={handleFacebookLogin}
-        >
-          <Ionicons name="logo-facebook" size={24} color="#4267B2" />
-          <Text style={styles.socialButtonText}>Facebook</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity 
+        style={[styles.socialButton, styles.googleButton]}
+        onPress={handleGoogleLogin}
+      >
+        <Ionicons name="logo-google" size={24} color="#DB4437" />
+        <Text style={styles.socialButtonText}>Continuer avec Google</Text>
+      </TouchableOpacity>
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>Pas encore de compte ?</Text>
@@ -125,25 +110,17 @@ const styles = StyleSheet.create({
     color: '#666',
     marginVertical: 20,
   },
-  socialButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-  },
   socialButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 15,
     borderRadius: 10,
-    width: '48%',
+    width: '100%',
     borderWidth: 1,
     borderColor: '#ddd',
   },
   googleButton: {
-    backgroundColor: '#fff',
-  },
-  facebookButton: {
     backgroundColor: '#fff',
   },
   socialButtonText: {
