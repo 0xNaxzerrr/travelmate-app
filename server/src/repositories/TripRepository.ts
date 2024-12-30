@@ -1,43 +1,45 @@
-import { Repository } from 'typeorm';
-import { Trip } from '../entities/Trip';
-import { BaseRepository } from './BaseRepository';
-import { IPhoto } from '../interfaces/ITrip';
+import { Trip, TripDocument } from '../models/Trip';
+import { ITrip, IPhoto } from '../interfaces/ITrip';
+import { Types } from 'mongoose';
 
-export class TripRepository extends BaseRepository<Trip> {
-  constructor() {
-    super(Trip);
+export class TripRepository {
+  async findById(id: string): Promise<TripDocument | null> {
+    return Trip.findById(id);
   }
 
-  async findByUser(userId: string): Promise<Trip[]> {
-    return this.repository.find({
-      where: { userId },
-      order: { createdAt: 'DESC' }
-    });
+  async findByUser(userId: string): Promise<TripDocument[]> {
+    return Trip.find({ userId: new Types.ObjectId(userId) })
+      .sort({ createdAt: -1 });
   }
 
-  async findSharedTrip(shareableLink: string): Promise<Trip | null> {
-    return this.repository.findOne({
-      where: { shareableLink, isPublic: true },
-      relations: ['user']
-    });
+  async create(data: Partial<ITrip>): Promise<TripDocument> {
+    return Trip.create(data);
   }
 
-  async addPhoto(tripId: string, photo: IPhoto): Promise<Trip | null> {
-    const trip = await this.findById(tripId);
-    if (!trip) return null;
+  async update(id: string, data: Partial<ITrip>): Promise<TripDocument | null> {
+    return Trip.findByIdAndUpdate(id, data, { new: true });
+  }
 
-    trip.photos = [...trip.photos, photo];
-    return this.repository.save(trip);
+  async addPhoto(tripId: string, photo: IPhoto): Promise<TripDocument | null> {
+    return Trip.findByIdAndUpdate(
+      tripId,
+      { $push: { photos: photo } },
+      { new: true }
+    );
+  }
+
+  async findSharedTrip(shareableLink: string): Promise<TripDocument | null> {
+    return Trip.findOne({ shareableLink, isPublic: true }).populate('userId', 'name');
   }
 
   async updateStatus(
     tripId: string,
     status: 'planned' | 'ongoing' | 'completed'
-  ): Promise<Trip | null> {
-    const trip = await this.findById(tripId);
-    if (!trip) return null;
-
-    trip.status = status;
-    return this.repository.save(trip);
+  ): Promise<TripDocument | null> {
+    return Trip.findByIdAndUpdate(
+      tripId,
+      { $set: { status } },
+      { new: true }
+    );
   }
 }
