@@ -1,53 +1,89 @@
-import { Configuration, OpenAIApi } from 'openai';
+import { OpenAI } from 'openai';
 import { config } from '../config';
 import { ICity } from '../interfaces/ILocation';
+import { IEquipment } from '../interfaces/ITrip';
+
+interface IGeneratedItinerary {
+  cities: ICity[];
+  recommendations: {
+    equipment: IEquipment[];
+  };
+}
 
 export class OpenAIService {
-  private openai: OpenAIApi;
+  private openai: OpenAI;
 
   constructor() {
-    const configuration = new Configuration({
+    this.openai = new OpenAI({
       apiKey: config.openai.apiKey
     });
-    this.openai = new OpenAIApi(configuration);
   }
 
-  async generateItinerary(country: string, duration: number) {
-    const prompt = `Create a ${duration} day travel itinerary for ${country} including:
-    - Cities to visit with duration for each
-    - Must-see attractions and activities
-    - Recommended equipment and items to bring
-    Format as JSON.`;
+  async generateItinerary(country: string, duration: number): Promise<IGeneratedItinerary> {
+    try {
+      const prompt = `Create a detailed ${duration} day travel itinerary for ${country} including:
+      - Cities to visit with duration for each
+      - Must-see attractions and activities
+      - Recommended equipment and items to bring
+      Follow this exact JSON format:
+      {
+        "cities": [{
+          "name": "city name",
+          "duration": number of days,
+          "coordinates": { "latitude": number, "longitude": number },
+          "activities": ["activity1", "activity2"]
+        }],
+        "recommendations": {
+          "equipment": [{
+            "item": "item name",
+            "reason": "why it's needed",
+            "priority": "high/medium/low"
+          }]
+        }
+      }`;
 
-    const completion = await this.openai.createChatCompletion({
-      model: 'gpt-4',
-      messages: [
-        { role: 'system', content: 'You are a travel expert.' },
-        { role: 'user', content: prompt }
-      ]
-    });
+      const completion = await this.openai.chat.completions.create({
+        model: 'gpt-4',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an expert travel planner. Provide accurate and detailed travel recommendations.'
+          },
+          { role: 'user', content: prompt }
+        ]
+      });
 
-    const response = JSON.parse(
-      completion.data.choices[0].message?.content || '{}'
-    );
+      const response = JSON.parse(
+        completion.choices[0].message?.content || '{}'
+      );
 
-    return this.formatItinerary(response);
+      return this.validateAndFormatResponse(response);
+    } catch (error) {
+      console.error('Error generating itinerary:', error);
+      throw new Error('Failed to generate travel itinerary');
+    }
   }
 
-  private formatItinerary(rawResponse: any) {
+  private validateAndFormatResponse(response: any): IGeneratedItinerary {
+    if (!response.cities || !Array.isArray(response.cities)) {
+      throw new Error('Invalid itinerary format: missing or invalid cities');
+    }
+
     return {
-      cities: rawResponse.cities.map((city: any): ICity => ({
+      cities: response.cities.map((city: any) => ({
         name: city.name,
-        country: city.country,
-        coordinates: city.coordinates,
-        duration: city.duration,
-        activities: city.activities
+        coordinates: {
+          latitude: Number(city.coordinates.latitude),
+          longitude: Number(city.coordinates.longitude)
+        },
+        duration: Number(city.duration),
+        activities: Array.isArray(city.activities) ? city.activities : []
       })),
       recommendations: {
-        equipment: rawResponse.equipment.map((item: any) => ({
-          item: item.name,
+        equipment: (response.recommendations?.equipment || []).map((item: any) => ({
+          item: item.item,
           reason: item.reason,
-          priority: item.priority
+          priority: item.priority || 'medium'
         }))
       }
     };
