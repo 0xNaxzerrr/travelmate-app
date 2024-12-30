@@ -24,9 +24,7 @@
     "plugins": [
       "expo-camera",
       "expo-location",
-      "expo-image-picker",
-      "react-native-safe-area-context",
-      "react-native-screens"
+      "expo-image-picker"
     ]
   }
 }
