@@ -1,0 +1,69 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  password  String
+  name      String
+  trips     Trip[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Trip {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String    @db.ObjectId
+  user            User      @relation(fields: [userId], references: [id])
+  destination     Destination
+  startDate       DateTime
+  endDate         DateTime
+  duration        Int
+  status          TripStatus @default(PLANNED)
+  photos          Photo[]
+  recommendations Json
+  shareableLink   String?    @unique
+  isPublic        Boolean    @default(false)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+}
+
+type Destination {
+  country String
+  cities  City[]
+}
+
+type City {
+  name        String
+  country     String
+  coordinates Coordinates
+  duration    Int
+  activities  String[]
+}
+
+type Photo {
+  id       String      @default(uuid())
+  url      String
+  caption   String?
+  location  Coordinates
+  takenAt   DateTime    @default(now())
+}
+
+type Coordinates {
+  latitude  Float
+  longitude Float
+}
+
+enum TripStatus {
+  PLANNED
+  ONGOING
+  COMPLETED
+}
