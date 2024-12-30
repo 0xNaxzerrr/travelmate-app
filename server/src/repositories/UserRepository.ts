@@ -1,34 +1,52 @@
-import { User, UserDocument } from '../models/User';
+import { prisma } from '../lib/prisma';
 import { IRegistrationData } from '../interfaces/IUser';
 import { hash } from 'bcrypt';
-import { Types } from 'mongoose';
 
 export class UserRepository {
-  async findById(id: string): Promise<UserDocument | null> {
-    return User.findById(id).select('-password');
-  }
-
-  async findByEmail(email: string): Promise<UserDocument | null> {
-    return User.findOne({ email });
-  }
-
-  async createUser(data: IRegistrationData): Promise<UserDocument> {
-    const hashedPassword = await hash(data.password, 10);
-    return User.create({
-      ...data,
-      password: hashedPassword
+  async findById(id: string) {
+    return prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        createdAt: true,
+        updatedAt: true
+      }
     });
   }
 
-  async findWithTrips(userId: string): Promise<UserDocument | null> {
-    return User.findById(userId)
-      .populate('trips')
-      .select('-password');
+  async findByEmail(email: string) {
+    return prisma.user.findUnique({
+      where: { email }
+    });
   }
 
-  async addTripToUser(userId: string, tripId: string): Promise<void> {
-    await User.findByIdAndUpdate(userId, {
-      $push: { trips: new Types.ObjectId(tripId) }
+  async createUser(data: IRegistrationData) {
+    const hashedPassword = await hash(data.password, 10);
+    return prisma.user.create({
+      data: {
+        email: data.email,
+        name: data.name,
+        password: hashedPassword
+      }
+    });
+  }
+
+  async findWithTrips(userId: string) {
+    return prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        trips: true
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        trips: true,
+        createdAt: true,
+        updatedAt: true
+      }
     });
   }
 }
