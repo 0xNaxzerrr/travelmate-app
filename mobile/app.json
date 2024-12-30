@@ -26,8 +26,7 @@
       "expo-location",
       "expo-image-picker",
       "react-native-safe-area-context",
-      "react-native-screens",
-      "react-native-reanimated/plugin"
+      "react-native-screens"
     ]
   }
 }
