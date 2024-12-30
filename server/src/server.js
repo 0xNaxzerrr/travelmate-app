@@ -18,7 +18,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Routes
 const authRoutes = require('./routes/authRoutes');
-const tripRoutes = require('./routes/tripRoutes');
+const tripRoutes = require('./routes/tripsRoutes');
 const suggestionRoutes = require('./routes/suggestionRoutes');
 
 app.use('/api/auth', authRoutes);
