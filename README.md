@@ -1,7 +1,7 @@
 # TravelMate 🌍✈️
 
 ## Description
-TravelMate est une application mobile innovante qui simplifie la planification de voyages en utilisant l'IA pour générer des suggestions personnalisées.
+TravelMate est une application mobile qui simplifie la planification de voyages en utilisant l'IA pour générer des suggestions personnalisées.
 
 ## Fonctionnalités
 - Authentification utilisateur
@@ -11,22 +11,34 @@ TravelMate est une application mobile innovante qui simplifie la planification d
 - Partage de voyage
 
 ## Technologies
-- Backend: Node.js, Express.js, MongoDB
-- Frontend: React Native, Redux
-- IA: OpenAI GPT
+
+### Backend
+- Node.js + Express.js
+- TypeScript
+- Prisma (ORM)
+- OpenAI API
+- AWS S3
+- Redis (Cache)
+
+### Frontend (Mobile)
+- React Native
+- TypeScript
+- Redux Toolkit
+- Expo
 
 ## Installation
 
 ### Prérequis
-- Node.js
-- MongoDB
-- Expo CLI
+- Node.js 18+
+- npm ou yarn
+- Redis
 
 ### Backend
 ```bash
 cd server
 npm install
-npm start
+npm run prisma:generate
+npm run dev
 ```
 
 ### Mobile
@@ -35,20 +47,3 @@ cd mobile
 npm install
 npx expo start
 ```
-
-## Configuration
-Créez un fichier `.env` dans les dossiers `server` et `mobile` avec :
-
-### Backend `.env`
-```
-PORT=3000
-MONGO_URI=mongodb://localhost:27017/travelmate
-JWT_SECRET=votre_secret
-OPENAI_API_KEY=votre_clé_openai
-```
-
-## Documentation API
-Accédez à la documentation Swagger : `http://localhost:3000/api-docs`
-
-## Contributions
-Les contributions sont les bienvenues ! 🚀
