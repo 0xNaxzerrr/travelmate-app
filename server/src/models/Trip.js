@@ -1,63 +1,29 @@
 const mongoose = require('mongoose');
 
-const tripSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  destination: {
-    name: {
-      type: String,
-      required: true
-    },
-    coordinates: {
-      lat: Number,
-      lng: Number
-    }
-  },
-  startDate: {
-    type: Date,
-    required: true
-  },
-  endDate: {
-    type: Date,
-    required: true
-  },
-  checklist: [{
-    item: String,
-    completed: Boolean
+const TripSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  country: { type: String, required: true },
+  duration: { type: Number, required: true },
+  destinations: [{
+    city: String,
+    days: Number,
+    activities: [String]
   }],
-  itinerary: [{
-    name: String,
-    location: {
-      lat: Number,
-      lng: Number
-    },
-    date: Date,
-    notes: String
-  }],
+  equipments: [String],
   photos: [{
     url: String,
     location: {
-      lat: Number,
-      lng: Number
+      latitude: Number,
+      longitude: Number
     },
-    date: Date,
-    caption: String
+    date: { type: Date, default: Date.now }
   }],
-  owner: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: 'User'
-  },
-  collaborators: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  }]
-}, {
-  timestamps: true
-});
+  shareLink: { type: String },
+  status: { 
+    type: String, 
+    enum: ['planned', 'ongoing', 'completed'], 
+    default: 'planned' 
+  }
+}, { timestamps: true });
 
-const Trip = mongoose.model('Trip', tripSchema);
-module.exports = Trip;
+module.exports = mongoose.model('Trip', TripSchema);
