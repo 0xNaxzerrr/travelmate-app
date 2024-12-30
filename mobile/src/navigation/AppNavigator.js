@@ -1,63 +1,87 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSelector } from 'react-redux';
-import { Ionicons } from '@expo/vector-icons';
 
-// Auth Screens
-import LoginScreen from '../screens/auth/LoginScreen';
-import RegisterScreen from '../screens/auth/RegisterScreen';
-
-// App Screens
-import HomeScreen from '../screens/HomeScreen';
-import MapScreen from '../screens/MapScreen';
-import PlannerScreen from '../screens/PlannerScreen';
-import ProfileScreen from '../screens/ProfileScreen';
+// Screens
+import LoginScreen from '../screens/LoginScreen';
+import RegisterScreen from '../screens/RegisterScreen';
+import TripPlanningScreen from '../screens/TripPlanningScreen';
+import TripPhotosScreen from '../screens/TripPhotosScreen';
+import SharedTripScreen from '../screens/SharedTripScreen';
+import TripsListScreen from '../screens/TripsListScreen';
 
 const Stack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
 
-const TabNavigator = () => (
-  <Tab.Navigator
-    screenOptions={({ route }) => ({
-      headerShown: false,
-      tabBarIcon: ({ focused, color }) => {
-        let iconName;
-        switch (route.name) {
-          case 'Accueil': iconName = focused ? 'home' : 'home-outline'; break;
-          case 'Carte': iconName = focused ? 'map' : 'map-outline'; break;
-          case 'Planifier': iconName = focused ? 'calendar' : 'calendar-outline'; break;
-          case 'Profil': iconName = focused ? 'person' : 'person-outline'; break;
-        }
-        return <Ionicons name={iconName} size={24} color={color} />;
-      },
-      tabBarActiveTintColor: '#007AFF',
-      tabBarInactiveTintColor: 'gray',
-    })}
-  >
-    <Tab.Screen name="Accueil" component={HomeScreen} />
-    <Tab.Screen name="Carte" component={MapScreen} />
-    <Tab.Screen name="Planifier" component={PlannerScreen} />
-    <Tab.Screen name="Profil" component={ProfileScreen} />
-  </Tab.Navigator>
-);
-
-export default function AppNavigator() {
+const AppNavigator = () => {
   const isAuthenticated = useSelector(state => state.auth.token !== null);
 
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Navigator
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: '#fff',
+          },
+          headerTintColor: '#000',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      >
         {!isAuthenticated ? (
+          // Auth Stack
           <>
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="Register" component={RegisterScreen} />
+            <Stack.Screen
+              name="Login"
+              component={LoginScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Register"
+              component={RegisterScreen}
+              options={{ headerShown: false }}
+            />
           </>
         ) : (
-          <Stack.Screen name="MainApp" component={TabNavigator} />
+          // Main Stack
+          <>
+            <Stack.Screen
+              name="Trips"
+              component={TripsListScreen}
+              options={{
+                title: 'Mes Voyages',
+                headerRight: () => (
+                  <Button
+                    onPress={() => navigation.navigate('PlanTrip')}
+                    icon="plus"
+                    mode="text"
+                  >
+                    Nouveau
+                  </Button>
+                ),
+              }}
+            />
+            <Stack.Screen
+              name="PlanTrip"
+              component={TripPlanningScreen}
+              options={{ title: 'Planifier un voyage' }}
+            />
+            <Stack.Screen
+              name="TripPhotos"
+              component={TripPhotosScreen}
+              options={{ title: 'Photos du voyage' }}
+            />
+            <Stack.Screen
+              name="SharedTrip"
+              component={SharedTripScreen}
+              options={{ title: 'Voyage partagé' }}
+            />
+          </>
         )}
       </Stack.Navigator>
     </NavigationContainer>
   );
-}
+};
+
+export default AppNavigator;
