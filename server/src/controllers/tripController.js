@@ -1,16 +1,17 @@
 const Trip = require('../models/Trip');
-const { generateItinerary, validateItinerary } = require('../services/tripPlanner');
+const { generateItinerary } = require('../services/tripPlanner');
+const { uploadImage } = require('../services/storage');
 const logger = require('../config/logger');
+const { redis, CACHE_KEYS, CACHE_TTL } = require('../config/redis');
 
 exports.planTrip = async (req, res) => {
   try {
     const { country, duration } = req.body;
     
-    // Générer l'itinéraire avec l'IA
+    // Générer l'itinéraire
     const suggestion = await generateItinerary(country, duration);
-    validateItinerary(suggestion, duration);
 
-    // Créer le trip
+    // Créer le voyage
     const trip = new Trip({
       user: req.user._id,
       destination: {
@@ -21,97 +22,128 @@ exports.planTrip = async (req, res) => {
         }))
       },
       duration,
-      recommendations: {
-        equipment: suggestion.equipment,
-        activities: suggestion.cities.flatMap(city => 
-          city.activities.map(activity => ({
-            name: activity,
-            location: city.name
-          }))
-        )
-      }
+      recommendations: suggestion.recommendations
     });
 
     await trip.save();
+
+    // Invalider le cache des voyages de l'utilisateur
+    await redis.del(CACHE_KEYS.USER_TRIPS(req.user._id));
+
     res.status(201).json(trip);
   } catch (error) {
-    logger.error('Erreur lors de la planification du voyage:', error);
-    res.status(400).json({ message: error.message });
+    logger.error('Erreur creation voyage:', error);
+    res.status(500).json({ message: error.message });
   }
 };
 
-exports.addPhoto = async (req, res) => {
+exports.getTripById = async (req, res) => {
   try {
     const { tripId } = req.params;
-    const { photoUrl, caption, latitude, longitude } = req.body;
+    const cacheKey = CACHE_KEYS.TRIP(tripId);
 
-    const trip = await Trip.findOne({ _id: tripId, user: req.user._id });
-    if (!trip) {
-      return res.status(404).json({ message: 'Voyage non trouvé' });
+    // Vérifier le cache
+    const cachedTrip = await redis.get(cacheKey);
+    if (cachedTrip) {
+      return res.json(JSON.parse(cachedTrip));
     }
 
-    trip.photos.push({
-      url: photoUrl,
-      caption,
-      location: { latitude, longitude }
+    const trip = await Trip.findOne({ 
+      _id: tripId,
+      $or: [
+        { user: req.user._id },
+        { isPublic: true }
+      ]
     });
 
-    await trip.save();
-    res.json(trip);
-  } catch (error) {
-    logger.error('Erreur lors de l\'ajout de la photo:', error);
-    res.status(400).json({ message: error.message });
-  }
-};
-
-exports.getTrip = async (req, res) => {
-  try {
-    const trip = await Trip.findById(req.params.tripId)
-      .populate('user', 'name');
-    
     if (!trip) {
       return res.status(404).json({ message: 'Voyage non trouvé' });
     }
 
-    // Vérifier si l'utilisateur a accès au voyage
-    if (!trip.isPublic && trip.user._id.toString() !== req.user?._id.toString()) {
-      return res.status(403).json({ message: 'Accès non autorisé' });
-    }
+    // Mettre en cache
+    await redis.setex(cacheKey, CACHE_TTL.TRIP, JSON.stringify(trip));
 
     res.json(trip);
   } catch (error) {
-    logger.error('Erreur lors de la récupération du voyage:', error);
-    res.status(400).json({ message: error.message });
+    logger.error('Erreur récupération voyage:', error);
+    res.status(500).json({ message: error.message });
   }
 };
 
 exports.getUserTrips = async (req, res) => {
   try {
+    const cacheKey = CACHE_KEYS.USER_TRIPS(req.user._id);
+
+    // Vérifier le cache
+    const cachedTrips = await redis.get(cacheKey);
+    if (cachedTrips) {
+      return res.json(JSON.parse(cachedTrips));
+    }
+
     const trips = await Trip.find({ user: req.user._id })
-      .select('-photos')
-      .sort('-createdAt');
+      .sort('-createdAt')
+      .select('-photos.base64'); // Exclure les données lourdes
+
+    // Mettre en cache
+    await redis.setex(cacheKey, CACHE_TTL.USER_TRIPS, JSON.stringify(trips));
+
     res.json(trips);
   } catch (error) {
-    logger.error('Erreur lors de la récupération des voyages:', error);
-    res.status(400).json({ message: error.message });
+    logger.error('Erreur récupération voyages:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.updateTrip = async (req, res) => {
+  try {
+    const { tripId } = req.params;
+    const trip = await Trip.findOneAndUpdate(
+      { _id: tripId, user: req.user._id },
+      req.body,
+      { new: true }
+    );
+
+    if (!trip) {
+      return res.status(404).json({ message: 'Voyage non trouvé' });
+    }
+
+    // Invalider les caches
+    await Promise.all([
+      redis.del(CACHE_KEYS.TRIP(tripId)),
+      redis.del(CACHE_KEYS.USER_TRIPS(req.user._id))
+    ]);
+
+    res.json(trip);
+  } catch (error) {
+    logger.error('Erreur mise à jour voyage:', error);
+    res.status(500).json({ message: error.message });
   }
 };
 
 exports.shareTrip = async (req, res) => {
   try {
-    const trip = await Trip.findOne({ _id: req.params.tripId, user: req.user._id });
+    const { tripId } = req.params;
+    const trip = await Trip.findById(tripId);
+
     if (!trip) {
       return res.status(404).json({ message: 'Voyage non trouvé' });
+    }
+
+    if (trip.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Non autorisé' });
     }
 
     trip.isPublic = true;
     await trip.save();
 
+    // Invalider le cache
+    await redis.del(CACHE_KEYS.TRIP(tripId));
+
     res.json({
-      shareableLink: `${process.env.CLIENT_URL}/trips/${trip.shareableLink}`
+      shareLink: `${process.env.CLIENT_URL}/trips/${trip.shareableLink}`
     });
   } catch (error) {
-    logger.error('Erreur lors du partage du voyage:', error);
-    res.status(400).json({ message: error.message });
+    logger.error('Erreur partage voyage:', error);
+    res.status(500).json({ message: error.message });
   }
 };
