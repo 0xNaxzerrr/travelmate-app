@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { useDispatch } from 'react-redux';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginUser } from '../../store/authSlice';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const dispatch = useDispatch();
+  const { isLoading, error } = useSelector((state) => state.auth);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -14,13 +16,10 @@ export default function LoginScreen({ navigation }) {
     }
 
     try {
-      // TODO: Intégrer avec le backend
-      console.log('Tentative de connexion:', { email, password });
-      
-      // Simulation de connexion réussie
+      const result = await dispatch(loginUser({ email, password })).unwrap();
       Alert.alert('Succès', 'Connexion réussie!');
-    } catch (error) {
-      Alert.alert('Erreur', error.message || 'Erreur de connexion');
+    } catch (err) {
+      Alert.alert('Erreur', err.message || 'Erreur de connexion');
     }
   };
 
@@ -47,9 +46,17 @@ export default function LoginScreen({ navigation }) {
         />
       </View>
 
-      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-        <Text style={styles.loginButtonText}>Se connecter</Text>
-      </TouchableOpacity>
+      {isLoading ? (
+        <ActivityIndicator size="large" color="#007AFF" />
+      ) : (
+        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+          <Text style={styles.loginButtonText}>Se connecter</Text>
+        </TouchableOpacity>
+      )}
+
+      {error && (
+        <Text style={styles.errorText}>{error.message || 'Une erreur est survenue'}</Text>
+      )}
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>Pas encore de compte ?</Text>
@@ -126,5 +133,9 @@ const styles = StyleSheet.create({
   },
   forgotPasswordText: {
     color: '#007AFF',
+  },
+  errorText: {
+    color: 'red',
+    marginTop: 10,
   },
 });
